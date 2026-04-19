@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nouveau restaurant{% endblock %}
+{% block body %}
+<h1 class="mb-4">Nouveau restaurant</h1>
+<div class="card shadow-sm"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.adresse) }}
+        {{ form_row(form.codePostal) }}
+        {{ form_row(form.ville) }}
+        <button class="btn btn-danger">Enregistrer</button>
+        <a class="btn btn-link" href="{{ path('app_restaurant_index') }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+{% endblock %}

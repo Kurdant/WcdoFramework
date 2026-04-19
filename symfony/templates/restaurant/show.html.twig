@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ restaurant.nom }}{% endblock %}
+{% block body %}
+<div class="d-flex justify-content-between mb-3">
+    <h1>{{ restaurant.nom }}</h1>
+    <div>
+        <a class="btn btn-outline-secondary" href="{{ path('app_restaurant_edit', {id: restaurant.id}) }}">Modifier</a>
+        <a class="btn btn-danger" href="{{ path('app_restaurant_affecter', {id: restaurant.id}) }}">+ Affecter un collaborateur</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+    <dl class="row mb-0">
+        <dt class="col-sm-3">Adresse</dt><dd class="col-sm-9">{{ restaurant.adresse }}</dd>
+        <dt class="col-sm-3">Code postal</dt><dd class="col-sm-9">{{ restaurant.codePostal }}</dd>
+        <dt class="col-sm-3">Ville</dt><dd class="col-sm-9">{{ restaurant.ville }}</dd>
+    </dl>
+</div></div>
+
+<h2 class="h4 mb-3">Collaborateurs en poste actuellement</h2>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3"><input name="nom" value="{{ filters.nom }}" placeholder="Nom" class="form-control"></div>
+    <div class="col-md-3"><input type="date" name="dateDebut" value="{{ filters.dateDebut ? filters.dateDebut|date('Y-m-d') : '' }}" class="form-control"></div>
+    <div class="col-md-3"><button class="btn btn-outline-danger">Filtrer</button></div>
+</form>
+
+<table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light"><tr><th>Nom</th><th>Prénom</th><th>Fonction</th><th>Date début</th></tr></thead>
+    <tbody>
+    {% for a in affectations %}
+        <tr>
+            <td><a href="{{ path('app_collaborateur_show', {id: a.collaborateur.id}) }}">{{ a.collaborateur.nom }}</a></td>
+            <td>{{ a.collaborateur.prenom }}</td>
+            <td>{{ a.fonction.intitule }}</td>
+            <td>{{ a.dateDebut|date('d/m/Y') }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4" class="text-center text-muted">Aucun collaborateur en poste.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% block title %}Restaurants{% endblock %}
+{% block body %}
+<div class="d-flex justify-content-between mb-3">
+    <h1>Restaurants</h1>
+    <a class="btn btn-danger" href="{{ path('app_restaurant_new') }}">+ Créer un restaurant</a>
+</div>
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+    {{ form_start(filterForm, {attr: {class: 'row g-2'}}) }}
+        <div class="col-md-3">{{ form_widget(filterForm.nom, {attr: {placeholder: 'Nom', class: 'form-control'}}) }}</div>
+        <div class="col-md-3">{{ form_widget(filterForm.codePostal, {attr: {placeholder: 'Code postal', class: 'form-control'}}) }}</div>
+        <div class="col-md-3">{{ form_widget(filterForm.ville, {attr: {placeholder: 'Ville', class: 'form-control'}}) }}</div>
+        <div class="col-md-3"><button class="btn btn-outline-danger w-100">Filtrer</button></div>
+    {{ form_end(filterForm) }}
+</div></div>
+
+<table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light"><tr>
+        <th>Nom</th><th>Adresse</th><th>CP</th><th>Ville</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for r in restaurants %}
+        <tr>
+            <td><a href="{{ path('app_restaurant_show', {id: r.id}) }}">{{ r.nom }}</a></td>
+            <td>{{ r.adresse }}</td>
+            <td>{{ r.codePostal }}</td>
+            <td>{{ r.ville }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_restaurant_show', {id: r.id}) }}">Voir</a></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5" class="text-center text-muted">Aucun restaurant.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Affecter un collaborateur — {{ restaurant.nom }}{% endblock %}
+{% block body %}
+<h1 class="mb-4">Affecter un collaborateur à « {{ restaurant.nom }} »</h1>
+<div class="card shadow-sm"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.collaborateur) }}
+        {{ form_row(form.fonction) }}
+        {{ form_row(form.dateDebut) }}
+        <button class="btn btn-danger">Affecter</button>
+        <a class="btn btn-link" href="{{ path('app_restaurant_edit', {id: restaurant.id}) }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+{% endblock %}

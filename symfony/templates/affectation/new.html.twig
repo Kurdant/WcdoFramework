@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nouvelle affectation{% endblock %}
+{% block body %}
+<h1 class="mb-4">Nouvelle affectation</h1>
+<div class="card shadow-sm"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.collaborateur) }}
+        {{ form_row(form.restaurant) }}
+        {{ form_row(form.fonction) }}
+        {{ form_row(form.dateDebut) }}
+        {{ form_row(form.dateFin) }}
+        <button class="btn btn-danger">Enregistrer</button>
+        <a class="btn btn-link" href="{{ path('app_affectation_index') }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+{% endblock %}

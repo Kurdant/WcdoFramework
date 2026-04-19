@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+{% block title %}Affectations{% endblock %}
+{% block body %}
+<div class="d-flex justify-content-between mb-3">
+    <h1>Affectations</h1>
+    <a class="btn btn-danger" href="{{ path('app_affectation_new') }}">+ Nouvelle affectation</a>
+</div>
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+    {{ form_start(filterForm, {attr: {class: 'row g-2'}}) }}
+        <div class="col-md-3">{{ form_row(filterForm.fonction) }}</div>
+        <div class="col-md-3">{{ form_row(filterForm.dateDebut) }}</div>
+        <div class="col-md-3">{{ form_row(filterForm.dateFin) }}</div>
+        <div class="col-md-3">{{ form_row(filterForm.ville) }}</div>
+        <div class="col-12"><button class="btn btn-outline-danger">Filtrer</button></div>
+    {{ form_end(filterForm) }}
+</div></div>
+
+<table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light"><tr>
+        <th>Collaborateur</th><th>Restaurant</th><th>Ville</th><th>Fonction</th>
+        <th>Début</th><th>Fin</th><th>Statut</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for a in affectations %}
+        <tr>
+            <td><a href="{{ path('app_collaborateur_show', {id: a.collaborateur.id}) }}">{{ a.collaborateur.prenom }} {{ a.collaborateur.nom }}</a></td>
+            <td><a href="{{ path('app_restaurant_show', {id: a.restaurant.id}) }}">{{ a.restaurant.nom }}</a></td>
+            <td>{{ a.restaurant.ville }}</td>
+            <td>{{ a.fonction.intitule }}</td>
+            <td>{{ a.dateDebut|date('d/m/Y') }}</td>
+            <td>{{ a.dateFin ? a.dateFin|date('d/m/Y') : '—' }}</td>
+            <td>{% if a.active %}<span class="badge text-bg-success">Actif</span>{% else %}<span class="badge text-bg-secondary">Terminé</span>{% endif %}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_affectation_edit', {id: a.id}) }}">Modifier</a></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="8" class="text-center text-muted">Aucune affectation.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier {{ restaurant.nom }}{% endblock %}
+{% block body %}
+<h1 class="mb-4">Modifier « {{ restaurant.nom }} »</h1>
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.adresse) }}
+        {{ form_row(form.codePostal) }}
+        {{ form_row(form.ville) }}
+        <button class="btn btn-danger">Enregistrer</button>
+        <a class="btn btn-link" href="{{ path('app_restaurant_show', {id: restaurant.id}) }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+
+<div class="d-flex justify-content-between mb-3">
+    <h2 class="h4">Historique des affectations</h2>
+    <a class="btn btn-danger btn-sm" href="{{ path('app_restaurant_affecter', {id: restaurant.id}) }}">+ Affecter un collaborateur</a>
+</div>
+
+<table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light"><tr>
+        <th>Collaborateur</th><th>Fonction</th><th>Date début</th><th>Date fin</th><th>Statut</th>
+    </tr></thead>
+    <tbody>
+    {% for a in historique %}
+        <tr>
+            <td><a href="{{ path('app_collaborateur_show', {id: a.collaborateur.id}) }}">{{ a.collaborateur.nom }} {{ a.collaborateur.prenom }}</a></td>
+            <td>{{ a.fonction.intitule }}</td>
+            <td>{{ a.dateDebut|date('d/m/Y') }}</td>
+            <td>{{ a.dateFin ? a.dateFin|date('d/m/Y') : '—' }}</td>
+            <td>{% if a.active %}<span class="badge text-bg-success">Actif</span>{% else %}<span class="badge text-bg-secondary">Terminé</span>{% endif %}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5" class="text-center text-muted">Aucune affectation.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

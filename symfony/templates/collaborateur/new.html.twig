@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nouveau collaborateur{% endblock %}
+{% block body %}
+<h1 class="mb-4">Nouveau collaborateur</h1>
+<div class="card shadow-sm"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.prenom) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.dateEmbauche) }}
+        {{ form_row(form.administrateur) }}
+        {{ form_row(form.plainPassword) }}
+        <button class="btn btn-danger">Enregistrer</button>
+        <a class="btn btn-link" href="{{ path('app_collaborateur_index') }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+{% endblock %}

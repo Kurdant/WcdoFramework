@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — Wacdo RH{% endblock %}
+
+{% block body %}
+<h1 class="mb-4">Bienvenue, {{ app.user.prenom }} {{ app.user.nom }}</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-bg-light"><div class="card-body">
+            <div class="text-muted small">Restaurants</div>
+            <div class="display-6">{{ stats.restaurants }}</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-light"><div class="card-body">
+            <div class="text-muted small">Collaborateurs</div>
+            <div class="display-6">{{ stats.collaborateurs }}</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-light"><div class="card-body">
+            <div class="text-muted small">Fonctions</div>
+            <div class="display-6">{{ stats.fonctions }}</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-light"><div class="card-body">
+            <div class="text-muted small">Affectations actives</div>
+            <div class="display-6">{{ stats.affectations_actives }}</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% set cards = [
+        {path: 'app_restaurant_index',    title: 'Restaurants',    icon: '🏪', desc: 'Gérer les restaurants Wacdo'},
+        {path: 'app_collaborateur_index', title: 'Collaborateurs', icon: '👥', desc: 'Gérer les collaborateurs'},
+        {path: 'app_fonction_index',      title: 'Fonctions',      icon: '💼', desc: 'Gérer les postes'},
+        {path: 'app_affectation_index',   title: 'Affectations',   icon: '📋', desc: 'Rechercher les affectations'},
+    ] %}
+    {% for c in cards %}
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ path(c.path) }}" class="text-decoration-none">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="display-4">{{ c.icon }}</div>
+                        <h5 class="card-title mt-2">{{ c.title }}</h5>
+                        <p class="card-text text-muted small">{{ c.desc }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

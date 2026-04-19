@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier fonction{% endblock %}
+{% block body %}
+<h1 class="mb-4">Modifier « {{ fonction.intitule }} »</h1>
+<div class="card shadow-sm"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.intitule) }}
+        <button class="btn btn-danger">Enregistrer</button>
+        <a class="btn btn-link" href="{{ path('app_fonction_index') }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+{% endblock %}

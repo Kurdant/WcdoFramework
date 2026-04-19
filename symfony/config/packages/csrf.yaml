@@ -1,0 +1,5 @@
+# Stateful CSRF protection for forms and logins
+framework:
+    form: true
+    csrf_protection:
+        stateless_token_ids: []

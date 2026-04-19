@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+{% block title %}Collaborateurs{% endblock %}
+{% block body %}
+<div class="d-flex justify-content-between mb-3">
+    <h1>
+        Collaborateurs
+        {% if mode == 'non_affectes' %}<span class="badge text-bg-warning ms-2">Non affectés</span>{% endif %}
+    </h1>
+    <div>
+        {% if mode != 'non_affectes' %}<a class="btn btn-outline-warning" href="{{ path('app_collaborateur_non_affectes') }}">Voir les non-affectés</a>{% else %}<a class="btn btn-outline-secondary" href="{{ path('app_collaborateur_index') }}">Tous les collaborateurs</a>{% endif %}
+        <a class="btn btn-danger" href="{{ path('app_collaborateur_new') }}">+ Créer un collaborateur</a>
+    </div>
+</div>
+
+{% if mode != 'non_affectes' %}
+<div class="card shadow-sm mb-4"><div class="card-body">
+    {{ form_start(filterForm, {attr: {class: 'row g-2'}}) }}
+        <div class="col-md-3">{{ form_widget(filterForm.nom, {attr: {placeholder: 'Nom', class: 'form-control'}}) }}</div>
+        <div class="col-md-3">{{ form_widget(filterForm.prenom, {attr: {placeholder: 'Prénom', class: 'form-control'}}) }}</div>
+        <div class="col-md-3">{{ form_widget(filterForm.email, {attr: {placeholder: 'Email', class: 'form-control'}}) }}</div>
+        <div class="col-md-3"><button class="btn btn-outline-danger w-100">Filtrer</button></div>
+    {{ form_end(filterForm) }}
+</div></div>
+{% endif %}
+
+<table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light"><tr>
+        <th>Nom</th><th>Prénom</th><th>Email</th><th>Embauche</th><th>Admin</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for c in collaborateurs %}
+        <tr>
+            <td><a href="{{ path('app_collaborateur_show', {id: c.id}) }}">{{ c.nom }}</a></td>
+            <td>{{ c.prenom }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.dateEmbauche|date('d/m/Y') }}</td>
+            <td>{% if c.administrateur %}<span class="badge text-bg-success">Oui</span>{% else %}<span class="badge text-bg-secondary">Non</span>{% endif %}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_collaborateur_show', {id: c.id}) }}">Voir</a></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="6" class="text-center text-muted">Aucun collaborateur.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

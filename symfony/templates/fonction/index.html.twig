@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block title %}Fonctions — Wacdo RH{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between mb-3">
+    <h1>Fonctions</h1>
+    <a class="btn btn-danger" href="{{ path('app_fonction_new') }}">+ Créer une fonction</a>
+</div>
+
+<table class="table table-hover bg-white shadow-sm">
+    <thead class="table-light"><tr><th>Intitulé</th><th class="text-end">Actions</th></tr></thead>
+    <tbody>
+    {% for f in fonctions %}
+        <tr>
+            <td>{{ f.intitule }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_fonction_edit', {id: f.id}) }}">Modifier</a></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="2" class="text-center text-muted">Aucune fonction.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

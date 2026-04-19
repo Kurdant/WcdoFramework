@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ collaborateur.prenom }} {{ collaborateur.nom }}{% endblock %}
+{% block body %}
+<div class="d-flex justify-content-between mb-3">
+    <h1>{{ collaborateur.prenom }} {{ collaborateur.nom }}</h1>
+    <div>
+        <a class="btn btn-outline-secondary" href="{{ path('app_collaborateur_edit', {id: collaborateur.id}) }}">Modifier</a>
+        <a class="btn btn-danger" href="{{ path('app_collaborateur_affecter', {id: collaborateur.id}) }}">+ Nouvelle affectation</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+    <dl class="row mb-0">
+        <dt class="col-sm-3">Email</dt><dd class="col-sm-9">{{ collaborateur.email }}</dd>
+        <dt class="col-sm-3">Date d'embauche</dt><dd class="col-sm-9">{{ collaborateur.dateEmbauche|date('d/m/Y') }}</dd>
+        <dt class="col-sm-3">Administrateur</dt><dd class="col-sm-9">{% if collaborateur.administrateur %}<span class="badge text-bg-success">Oui</span>{% else %}<span class="badge text-bg-secondary">Non</span>{% endif %}</dd>
+    </dl>
+</div></div>
+
+<h2 class="h4 mb-3">Affectations en cours</h2>
+<table class="table table-hover bg-white shadow-sm mb-4">
+    <thead class="table-light"><tr><th>Restaurant</th><th>Fonction</th><th>Date début</th><th></th></tr></thead>
+    <tbody>
+    {% for a in actives %}
+        <tr>
+            <td><a href="{{ path('app_restaurant_show', {id: a.restaurant.id}) }}">{{ a.restaurant.nom }} ({{ a.restaurant.ville }})</a></td>
+            <td>{{ a.fonction.intitule }}</td>
+            <td>{{ a.dateDebut|date('d/m/Y') }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_affectation_edit', {id: a.id}) }}">Modifier</a></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4" class="text-center text-muted">Aucune affectation en cours.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2 class="h4 mb-3">Historique</h2>
+<table class="table bg-white shadow-sm">
+    <thead class="table-light"><tr><th>Restaurant</th><th>Fonction</th><th>Début</th><th>Fin</th></tr></thead>
+    <tbody>
+    {% for a in historique %}
+        <tr>
+            <td>{{ a.restaurant.nom }} ({{ a.restaurant.ville }})</td>
+            <td>{{ a.fonction.intitule }}</td>
+            <td>{{ a.dateDebut|date('d/m/Y') }}</td>
+            <td>{{ a.dateFin ? a.dateFin|date('d/m/Y') : 'En cours' }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4" class="text-center text-muted">Aucune affectation.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

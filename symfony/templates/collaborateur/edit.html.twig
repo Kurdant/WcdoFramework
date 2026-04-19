@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier {{ collaborateur.prenom }} {{ collaborateur.nom }}{% endblock %}
+{% block body %}
+<h1 class="mb-4">Modifier « {{ collaborateur.prenom }} {{ collaborateur.nom }} »</h1>
+
+<div class="card shadow-sm mb-4"><div class="card-body">
+    {{ form_start(form) }}
+        {{ form_row(form.nom) }}
+        {{ form_row(form.prenom) }}
+        {{ form_row(form.email) }}
+        {{ form_row(form.dateEmbauche) }}
+        {{ form_row(form.administrateur) }}
+        {{ form_row(form.plainPassword) }}
+        <button class="btn btn-danger">Enregistrer</button>
+        <a class="btn btn-link" href="{{ path('app_collaborateur_show', {id: collaborateur.id}) }}">Annuler</a>
+    {{ form_end(form) }}
+</div></div>
+
+<div class="d-flex justify-content-between mb-3">
+    <h2 class="h4">Affectations en cours</h2>
+    <a class="btn btn-danger btn-sm" href="{{ path('app_collaborateur_affecter', {id: collaborateur.id}) }}">+ Nouvelle affectation</a>
+</div>
+
+<table class="table bg-white shadow-sm">
+    <thead class="table-light"><tr><th>Restaurant</th><th>Fonction</th><th>Début</th><th></th></tr></thead>
+    <tbody>
+    {% for a in actives %}
+        <tr>
+            <td>{{ a.restaurant.nom }} ({{ a.restaurant.ville }})</td>
+            <td>{{ a.fonction.intitule }}</td>
+            <td>{{ a.dateDebut|date('d/m/Y') }}</td>
+            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_affectation_edit', {id: a.id}) }}">Modifier</a></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4" class="text-center text-muted">Aucune affectation en cours.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
