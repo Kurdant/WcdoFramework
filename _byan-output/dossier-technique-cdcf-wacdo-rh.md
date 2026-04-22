@@ -703,43 +703,21 @@ Exemple : accès à `/restaurant` (liste des restaurants)
 
 ### 9.1 Modèle Conceptuel de Données (MCD)
 
-```
-+--------------------------------+        +-----------------------+
-|         Collaborateur          |        |      Restaurant       |
-+--------------------------------+        +-----------------------+
-| id (PK)                        |        | id (PK)               |
-| nom                            |        | nom                   |
-| prenom                         |        | adresse               |
-| email (UNIQUE)                 |        | code_postal           |
-| date_embauche                  |        | ville                 |
-| administrateur (bool)          |        +-----------+-----------+
-| mot_de_passe (nullable)        |                    |
-| roles (JSON)                   |                    |
-+---------------+----------------+                    |
-                |                                     |
-              1 | N                               1 N |
-                |                                     |
-                v                                     v
-              +------------------------------------------+
-              |                Affectation               |
-              +------------------------------------------+
-              | id (PK)                                  |
-              | date_debut                               |
-              | date_fin (NULL => affectation active)    |
-              | collaborateur_id (FK)                    |
-              | restaurant_id   (FK)                     |
-              | fonction_id     (FK)                     |
-              +-------------------+----------------------+
-                                  |
-                              N 1 |
-                                  v
-                       +----------+----------+
-                       |       Fonction      |
-                       +---------------------+
-                       | id (PK)             |
-                       | intitule (UNIQUE)   |
-                       +---------------------+
-```
+Le MCD repose sur **4 entités** reliées autour d'une table de jonction centrale (`Affectation`).
+
+**Entité Collaborateur**
+- `id` (PK), `nom`, `prenom`, `email` (UNIQUE), `date_embauche`
+- `administrateur` (bool), `mot_de_passe` (nullable), `roles` (JSON)
+
+**Entité Restaurant**
+- `id` (PK), `nom`, `adresse`, `code_postal`, `ville`
+
+**Entité Fonction**
+- `id` (PK), `intitule` (UNIQUE)
+
+**Entité Affectation** *(table de jonction centrale)*
+- `id` (PK), `date_debut`, `date_fin` (NULL = affectation active)
+- `collaborateur_id` (FK), `restaurant_id` (FK), `fonction_id` (FK)
 
 **Cardinalités :**
 - `Collaborateur` **1 → N** `Affectation` : un collaborateur peut avoir plusieurs affectations dans le temps
@@ -830,38 +808,19 @@ class Collaborateur implements UserInterface, PasswordAuthenticatedUserInterface
 
 ### 9.4 Méthodes custom des Repositories
 
-
 **`CollaborateurRepository`**
-  - *Méthode* : `findByFilters(?nom, ?prenom, ?email)`
-  - *Description* : LIKE conditionnel sur chaque champ
-
-**`CollaborateurRepository`**
-  - *Méthode* : `findNonAffectes()`
-  - *Description* : LEFT JOIN affectations WITH `dateFin IS NULL`, WHERE affectation.id IS NULL → retourne les collaborateurs sans aucune affectation active
+- `findByFilters(?nom, ?prenom, ?email)` — LIKE conditionnel sur chaque champ
+- `findNonAffectes()` — LEFT JOIN affectations actives (`dateFin IS NULL`), retourne les collaborateurs sans aucune affectation active
 
 **`RestaurantRepository`**
-  - *Méthode* : `findByFilters(?nom, ?cp, ?ville)`
-  - *Description* : LIKE conditionnel
+- `findByFilters(?nom, ?cp, ?ville)` — LIKE conditionnel
 
 **`AffectationRepository`**
-  - *Méthode* : `findByFilters(?fonction, ?dateDebut, ?dateFin, ?ville)`
-  - *Description* : JOIN restaurant + conditions
-
-**`AffectationRepository`**
-  - *Méthode* : `findActivesByRestaurant($restaurant, ...)`
-  - *Description* : WHERE date_fin IS NULL + filtres
-
-**`AffectationRepository`**
-  - *Méthode* : `findAllByRestaurant($restaurant, ...)`
-  - *Description* : Toutes affectations d'un restaurant
-
-**`AffectationRepository`**
-  - *Méthode* : `findActivesByCollaborateur($collab)`
-  - *Description* : Affectations actives d'un collaborateur
-
-**`AffectationRepository`**
-  - *Méthode* : `findAllByCollaborateur($collab, ...)`
-  - *Description* : Historique complet d'un collaborateur
+- `findByFilters(?fonction, ?dateDebut, ?dateFin, ?ville)` — JOIN restaurant + conditions
+- `findActivesByRestaurant($restaurant, ...)` — WHERE date_fin IS NULL + filtres
+- `findAllByRestaurant($restaurant, ...)` — Toutes affectations d'un restaurant
+- `findActivesByCollaborateur($collab)` — Affectations actives d'un collaborateur
+- `findAllByCollaborateur($collab, ...)` — Historique complet d'un collaborateur
 
 
 ---
@@ -1067,37 +1026,20 @@ Page d'accueil après connexion. Affiche :
 
 ### 11.1 Architecture d'authentification
 
-```
-     Navigateur
-         |
-         | 1. GET /login
-         v
- +----------------------------------------+
- | SecurityController::login()            |
- | -> affiche login.html.twig (CSRF token)|
- +----------------------------------------+
-         |
-         | 2. POST /login (email + mdp + _csrf_token)
-         |    (intercepté par le Firewall "main")
-         v
- +----------------------------------------+
- | Symfony Security Firewall              |
- |                                        |
- |  1. EntityProvider -> charge           |
- |     Collaborateur par email            |
- |     (getUserIdentifier)                |
- |                                        |
- |  2. UserPasswordHasher                 |
- |     -> password_verify() (bcrypt)      |
- |                                        |
- |  3. access_control vérifie que         |
- |     ROLE_ADMIN est présent dans        |
- |     getRoles()                         |
- +----------------------------------------+
-         |
-         +-- OK   -> Token session -> Redirect `/`
-         +-- Fail -> Redirect `/login` + flash error
-```
+Le flux d'authentification se déroule en **2 étapes** interceptées par le Firewall Symfony :
+
+**Étape 1 — Affichage du formulaire**
+Le navigateur envoie `GET /login`. `SecurityController::login()` affiche `login.html.twig` avec un token CSRF embarqué.
+
+**Étape 2 — Vérification des credentials**
+Le navigateur envoie `POST /login` avec l'email, le mot de passe et le token CSRF. Le Firewall Symfony `main` intercepte la requête et effectue 3 vérifications en séquence :
+1. **EntityProvider** — charge l'entité `Collaborateur` par `email` (`getUserIdentifier`)
+2. **UserPasswordHasher** — vérifie le mot de passe haché en bcrypt
+3. **access_control** — vérifie que `ROLE_ADMIN` est présent dans `getRoles()`
+
+**Résultat :**
+- ✅ Succès → token de session créé → redirection vers `/`
+- ❌ Échec → redirection vers `/login` + message d'erreur flash
 
 ### 11.2 Configuration security.yaml
 
@@ -1205,28 +1147,26 @@ if ($form->isSubmitted() && $form->isValid()) {
 
 ### 12.1 Architecture des conteneurs
 
-```
-+---------------------------------------------------------------+
-|               Réseau Docker bridge : wcdo_rh_net              |
-|                                                               |
-|  +---------------------+        +--------------------------+  |
-|  |  symfony-php        |        |  symfony-nginx           |  |
-|  |  (wcdo_rh_php)      | <----- |  (wcdo_rh_nginx)         |  |
-|  |  php:8.3-fpm-alpine |  9000  |  nginx:1.27-alpine       |  |
-|  |  (pas de port hôte) |        |  port hôte : 8090 -> 80  |  |
-|  +----------+----------+        +--------------------------+  |
-|             |                                                 |
-|             | pdo_mysql                                       |
-|             v                                                 |
-|  +---------------------+        +--------------------------+  |
-|  |  mariadb            |        |  phpmyadmin              |  |
-|  |  (wcdo_rh_mariadb)  | <----- |  (wcdo_rh_pma)           |  |
-|  |  mariadb:10.11      |  3306  |  phpmyadmin:5            |  |
-|  |  port hôte :        |        |  port hôte : 8091 -> 80  |  |
-|  |  3309 -> 3306       |        |                          |  |
-|  +---------------------+        +--------------------------+  |
-+---------------------------------------------------------------+
-```
+L'application tourne sur **4 conteneurs** interconnectés dans un réseau Docker bridge `wcdo_rh_net` :
+
+**symfony-nginx** *(point d'entrée public)*
+- Image : `nginx:1.27-alpine` — Port hôte : `8090 → 80`
+- Reçoit les requêtes HTTP et les transmet à PHP via FastCGI (port 9000)
+
+**symfony-php** *(moteur de l'application)*
+- Image : build custom `php:8.3-fpm-alpine` — pas de port exposé sur l'hôte
+- Exécute le code Symfony, communique avec MariaDB via PDO
+
+**mariadb** *(base de données)*
+- Image : `mariadb:10.11` — Port hôte : `3309 → 3306`
+- Stocke toutes les données (collaborateurs, restaurants, affectations, fonctions)
+
+**phpmyadmin** *(interface d'administration BDD)*
+- Image : `phpmyadmin:5` — Port hôte : `8091 → 80`
+- Interface web pour consulter/modifier la base de données en développement
+
+**Flux de communication :**
+`Navigateur → nginx (8090) → php-fpm (9000) → mariadb (3306)`
 
 ### 12.2 Services Docker Compose
 
@@ -1321,22 +1261,13 @@ Le projet a été réalisé en **phases séquentielles** selon un pipeline défi
 
 ### 13.2 Pipeline de réalisation
 
-```
-Phase 1 — Infra Docker
- ↓ (stack Docker up, curl 200)
-Phase 2 — Packages Composer
- ↓ (17 dépendances de production + 8 de développement installées)
-Phase 3 — Entités & BDD
- ↓ (4 tables créées et vérifiées)
-Phase 4 — Sécurité
- ↓ (login testé curl 302→/)
-Phase 5 — Controllers & Forms
- ↓ (20 routes créées)
-Phase 6 — Templates Twig
- ↓ (19 templates créés)
-Phase 7 — Fixtures & Tests
- ↓ (données chargées, 10 tests verts)
-```
+1. **Phase 1 — Infra Docker** — stack Docker up, curl 200
+2. **Phase 2 — Packages Composer** — 17 dépendances de production + 8 de développement installées
+3. **Phase 3 — Entités & BDD** — 4 tables créées et vérifiées
+4. **Phase 4 — Sécurité** — login testé curl 302 → /
+5. **Phase 5 — Controllers & Forms** — 20 routes créées
+6. **Phase 6 — Templates Twig** — 19 templates créés
+7. **Phase 7 — Fixtures & Tests** — données chargées, 10 tests verts
 
 ### 13.3 Détail des phases
 
