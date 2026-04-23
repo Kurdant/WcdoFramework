@@ -16,9 +16,21 @@ docker compose exec symfony-php bin/console doctrine:migrations:migrate -n
 docker compose exec symfony-php bin/console doctrine:fixtures:load -n
 ```
 
+### Mise en ligne rapide
+
+Le projet est prévu pour tourner avec Docker. L'application Symfony est servie par Nginx sur le port `8090`.
+
+Variables utiles avant lancement :
+
+```bash
+export APP_SECRET='change-me-on-a-real-server'
+docker compose up -d --build
+```
+
 ## Accès
 - App RH : http://localhost:8090
-- phpMyAdmin : http://localhost:8091 (root / root)
+- App RH (LAN) : http://<ip-du-serveur>:8090
+- phpMyAdmin : http://localhost:8091 (root / root) — exposé uniquement en local
 - Login admin : `admin@wcdo.fr` / `admin123`
 
 ## Structure

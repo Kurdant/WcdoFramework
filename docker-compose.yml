@@ -9,7 +9,7 @@ services:
       MARIADB_USER: wcdo
       MARIADB_PASSWORD: wcdo
     ports:
-      - "3309:3306"
+      - "127.0.0.1:3309:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./docker/mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -25,7 +25,7 @@ services:
       PMA_USER: root
       PMA_PASSWORD: root
     ports:
-      - "8091:80"
+      - "127.0.0.1:8091:80"
     depends_on:
       - mariadb
     networks:
@@ -43,7 +43,9 @@ services:
       - ./symfony:/var/www/symfony
     environment:
       DATABASE_URL: "mysql://wcdo:wcdo@mariadb:3306/wcdo_rh?serverVersion=10.11.0-MariaDB&charset=utf8mb4"
-      APP_ENV: dev
+      APP_ENV: prod
+      APP_DEBUG: 0
+      APP_SECRET: "${APP_SECRET:-wcdo-rh-demo-change-me}"
     depends_on:
       - mariadb
     networks:
